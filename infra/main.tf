@@ -80,37 +80,50 @@ module "secrets_manager" {
 ########################################
 # ECS MODULE
 ########################################
-
 module "ecs" {
 
   source = "./modules/ecs"
 
-  project_name            = var.project_name
+  project_name     = var.project_name
+  environment      = var.environment
 
-  ecs_cluster_name        = var.ecs_cluster_name
-  ecs_service_name        = var.ecs_service_name
+  aws_region       = var.aws_region
 
-  container_name          = var.container_name
-  container_port          = var.container_port
+  ecs_cluster_name = var.ecs_cluster_name
+  ecs_service_name = var.ecs_service_name
 
-  task_cpu                = var.task_cpu
-  task_memory             = var.task_memory
+  container_name   = var.container_name
+  container_port   = var.container_port
 
-  desired_count           = var.desired_count
+  task_cpu         = var.task_cpu
+  task_memory      = var.task_memory
 
-  private_subnets         = module.vpc.private_subnets
+  desired_count    = var.desired_count
 
-  ecs_security_group      = module.security_groups.ecs_sg_id
+  vpc_id               = module.vpc.vpc_id
 
-  target_group_arn        = module.alb.target_group_arn
+  private_subnet_ids   = module.vpc.private_subnets
+
+  ecs_security_group_id = module.security_groups.ecs_sg_id
+
+  target_group_arn     = module.alb.target_group_arn
 
   ecs_task_execution_role = module.iam.ecs_task_execution_role_arn
 
-  ecr_repository_url      = module.ecr.repository_url
+  ecs_instance_profile = module.iam.ecs_instance_profile_name
 
-  cloudwatch_log_group    = module.cloudwatch.log_group_name
+  ecr_repository_url   = module.ecr.repository_url
+
+  cloudwatch_log_group = module.cloudwatch.log_group_name
+
+  secret_arn           = module.secrets_manager.secret_arn
+
+  ecs_instance_type    = var.ecs_instance_type
+
+  ecs_ami_id           = var.ecs_ami_id
+
+  key_name             = var.key_name
 }
-
 ########################################
 # ALB MODULE
 ########################################

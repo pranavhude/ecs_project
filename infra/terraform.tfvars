@@ -47,6 +47,14 @@ task_memory = 1024
 
 desired_count = 2
 
+aws_region = "ap-south-1"
+
+ecs_instance_type = "t3.medium"
+
+ecs_ami_id = "ami-xxxxxxxx"
+
+key_name = "ecs-key"
+
 ########################################
 # BASTION
 ########################################

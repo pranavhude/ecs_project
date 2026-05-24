@@ -79,7 +79,23 @@ variable "desired_count" {
   type        = number
   description = "Desired ECS Task Count"
 }
+variable "aws_region" {
+  type    = string
+  default = "eu-west-1"
+}
 
+variable "ecs_instance_type" {
+  type    = string
+  default = "t3.medium"
+}
+
+variable "ecs_ami_id" {
+  type = string
+}
+
+variable "key_name" {
+  type = string
+}
 ########################################
 # EC2 BASTION
 ########################################
