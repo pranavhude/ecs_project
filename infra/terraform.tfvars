@@ -1,16 +1,6 @@
-########################################
-# GENERAL
-########################################
-
-project_name = "ecs-prod"
-
-environment = "prod"
-
 aws_region = "ap-south-1"
 
-########################################
-# NETWORKING
-########################################
+project_name = "ecs-prod"
 
 vpc_cidr = "10.0.0.0/16"
 
@@ -25,54 +15,22 @@ private_subnets = [
 ]
 
 availability_zones = [
-  "ap-south-1a",
-  "ap-south-1b"
+  "eu-west-1a",
+  "eu-west-1b"
 ]
-
-########################################
-# ECS
-########################################
-
-ecs_cluster_name = "prod-ecs-cluster"
-
-ecs_service_name = "prod-ecs-service"
-
-container_name = "ecs-app"
-
-container_port = 80
-
-task_cpu = 512
-
-task_memory = 1024
-
-desired_count = 2
-
-aws_region = "ap-south-1"
 
 ecs_instance_type = "t3.medium"
 
-ecs_ami_id = "ami-xxxxxxxx"
+ecs_desired_capacity = 2
+ecs_min_capacity     = 2
+ecs_max_capacity     = 4
 
-key_name = "ecs-key"
-
-########################################
-# BASTION
-########################################
-
-instance_type = "t3.micro"
-
-key_name = "prod-key"
-
-########################################
-# RDS
-########################################
+rds_instance_class = "db.t3.micro"
 
 db_name = "appdb"
 
 db_username = "admin"
 
-db_password = "ChangeMe123!"
+domain_name  = "example.com"
+app_subdomain = "app"
 
-db_instance_class = "db.t3.micro"
-
-allocated_storage = 20

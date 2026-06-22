@@ -1,5 +1,19 @@
-variable "project_name" {}
-variable "vpc_cidr" {}
-variable "public_subnets" {}
-variable "private_subnets" {}
-variable "availability_zones" {}
+variable "project_name" {
+  type = string
+}
+
+variable "vpc_cidr" {
+  type = string
+}
+
+variable "public_subnets" {
+  type = list(string)
+}
+
+variable "private_subnets" {
+  type = list(string)
+}
+
+variable "availability_zones" {
+  type = list(string)
+}

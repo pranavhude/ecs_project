@@ -1,58 +1,81 @@
-resource "aws_lb" "this" {
+################################################################################
+# ALB ACCESS LOG BUCKET
+################################################################################
 
+resource "aws_s3_bucket" "alb_logs" {
+  bucket = "${var.project_name}-alb-logs"
+}
+
+resource "aws_s3_bucket_versioning" "alb_logs" {
+  bucket = aws_s3_bucket.alb_logs.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "alb_logs" {
+  bucket = aws_s3_bucket.alb_logs.id
+
+  block_public_acls       = true
+  ignore_public_acls      = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+}
+
+################################################################################
+# ALB
+################################################################################
+
+resource "aws_lb" "this" {
   name               = "${var.project_name}-alb"
 
   internal           = false
-
   load_balancer_type = "application"
 
   security_groups = [
     var.alb_security_group
   ]
 
-  subnets = var.public_subnets
+  subnets = var.public_subnet_ids
 
   enable_deletion_protection = false
 
-  idle_timeout = 60
+  access_logs {
+    bucket  = aws_s3_bucket.alb_logs.bucket
+    enabled = true
+  }
 
   tags = {
     Name = "${var.project_name}-alb"
   }
 }
 
-########################################
+################################################################################
 # TARGET GROUP
-########################################
+################################################################################
 
 resource "aws_lb_target_group" "this" {
+  name        = "${var.project_name}-tg"
 
-  name = "${var.project_name}-tg"
-
-  port     = var.container_port
-  protocol = "HTTP"
+  port        = 80
+  protocol    = "HTTP"
 
   target_type = "instance"
 
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   health_check {
-
-    enabled = true
-
-    path = "/"
-
-    protocol = "HTTP"
-
-    matcher = "200"
-
-    interval = 30
-
-    timeout = 5
+    enabled             = true
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200"
 
     healthy_threshold   = 2
+    unhealthy_threshold = 3
 
-    unhealthy_threshold = 2
+    timeout             = 5
+    interval            = 30
   }
 
   tags = {
@@ -60,46 +83,18 @@ resource "aws_lb_target_group" "this" {
   }
 }
 
-########################################
+################################################################################
 # HTTP LISTENER
-########################################
+################################################################################
 
 resource "aws_lb_listener" "http" {
-
   load_balancer_arn = aws_lb.this.arn
 
   port     = 80
   protocol = "HTTP"
 
   default_action {
-
-    type = "forward"
-
-    target_group_arn = aws_lb_target_group.this.arn
-  }
-}
-
-########################################
-# HTTPS LISTENER (OPTIONAL)
-########################################
-
-resource "aws_lb_listener" "https" {
-
-  count = var.enable_https ? 1 : 0
-
-  load_balancer_arn = aws_lb.this.arn
-
-  port     = 443
-  protocol = "HTTPS"
-
-  ssl_policy = "ELBSecurityPolicy-2016-08"
-
-  certificate_arn = var.acm_certificate_arn
-
-  default_action {
-
-    type = "forward"
-
+    type             = "forward"
     target_group_arn = aws_lb_target_group.this.arn
   }
 }

@@ -1,151 +1,99 @@
-########################################
-# VPC MODULE
-########################################
-
 module "vpc" {
-
   source = "./modules/vpc"
 
   project_name       = var.project_name
-  environment        = var.environment
-
   vpc_cidr           = var.vpc_cidr
-
   public_subnets     = var.public_subnets
   private_subnets    = var.private_subnets
-
   availability_zones = var.availability_zones
 }
 
-########################################
-# SECURITY GROUP MODULE
-########################################
-
 module "security_groups" {
-
   source = "./modules/security-groups"
 
   project_name = var.project_name
-
   vpc_id       = module.vpc.vpc_id
 }
 
-########################################
-# IAM MODULE
-########################################
-
 module "iam" {
-
   source = "./modules/iam"
 
   project_name = var.project_name
 }
 
-########################################
-# ECR MODULE
-########################################
-
 module "ecr" {
-
   source = "./modules/ecr"
 
   project_name = var.project_name
 }
 
-########################################
-# CLOUDWATCH MODULE
-########################################
-
-module "cloudwatch" {
-
-  source = "./modules/cloudwatch"
-
-  project_name = var.project_name
-}
-
-########################################
-# SECRETS MANAGER MODULE
-########################################
-
 module "secrets_manager" {
-
   source = "./modules/secrets-manager"
 
   project_name = var.project_name
-
-  db_username  = var.db_username
-  db_password  = var.db_password
 }
 
-########################################
-# ECS MODULE
-########################################
-module "ecs" {
+module "rds" {
+  source = "./modules/rds"
 
-  source = "./modules/ecs"
+  project_name       = var.project_name
+  db_name            = var.db_name
+  instance_class     = var.rds_instance_class
 
-  project_name     = var.project_name
-  environment      = var.environment
+  private_subnet_ids = module.vpc.private_subnet_ids
 
-  aws_region       = var.aws_region
+  rds_security_group = module.security_groups.rds_sg_id
 
-  ecs_cluster_name = var.ecs_cluster_name
-  ecs_service_name = var.ecs_service_name
-
-  container_name   = var.container_name
-  container_port   = var.container_port
-
-  task_cpu         = var.task_cpu
-  task_memory      = var.task_memory
-
-  desired_count    = var.desired_count
-
-  vpc_id               = module.vpc.vpc_id
-
-  private_subnet_ids   = module.vpc.private_subnets
-
-  ecs_security_group_id = module.security_groups.ecs_sg_id
-
-  target_group_arn     = module.alb.target_group_arn
-
-  ecs_task_execution_role = module.iam.ecs_task_execution_role_arn
-
-  ecs_instance_profile = module.iam.ecs_instance_profile_name
-
-  ecr_repository_url   = module.ecr.repository_url
-
-  cloudwatch_log_group = module.cloudwatch.log_group_name
-
-  secret_arn           = module.secrets_manager.secret_arn
-
-  ecs_instance_type    = var.ecs_instance_type
-
-  ecs_ami_id           = var.ecs_ami_id
-
-  key_name             = var.key_name
+  secret_arn         = module.secrets_manager.secret_arn
 }
-########################################
-# ALB MODULE
-########################################
 
 module "alb" {
-
   source = "./modules/alb"
 
   project_name       = var.project_name
-
   vpc_id             = module.vpc.vpc_id
 
-  public_subnets     = module.vpc.public_subnets
+  public_subnet_ids  = module.vpc.public_subnet_ids
 
   alb_security_group = module.security_groups.alb_sg_id
-
-  container_port     = var.container_port
 }
 
-########################################
-# BASTION HOST MODULE
-########################################
+module "ecs_cluster" {
+  source = "./modules/ecs-cluster"
+
+  project_name = var.project_name
+
+  ecs_instance_type = var.ecs_instance_type
+
+  desired_capacity = var.ecs_desired_capacity
+  min_capacity     = var.ecs_min_capacity
+  max_capacity     = var.ecs_max_capacity
+
+  private_subnet_ids = module.vpc.private_subnet_ids
+
+  ecs_security_group_id = module.security_groups.ecs_sg_id
+
+  ecs_instance_profile = module.iam.ecs_instance_profile
+}
+
+module "ecs_capacity_provider" {
+  source = "./modules/ecs-capacity-provider"
+
+  cluster_name = module.ecs_cluster.cluster_name
+  asg_arn      = module.ecs_cluster.asg_arn
+}
+
+module "ecs_service" {
+  source = "./modules/ecs-service"
+
+  project_name      = var.project_name
+  cluster_id        = module.ecs_cluster.cluster_id
+  target_group_arn  = module.alb.target_group_arn
+  execution_role    = module.iam.ecs_task_execution_role_arn
+  task_role         = module.iam.ecs_task_role_arn
+  secret_arn        = module.secrets_manager.secret_arn
+  ecr_repository    = module.ecr.repository_url
+}
 
 module "bastion" {
 
@@ -153,36 +101,51 @@ module "bastion" {
 
   project_name = var.project_name
 
-  subnet_id    = module.vpc.public_subnets[0]
+  public_subnet_id = module.vpc.public_subnet_ids[0]
 
-  instance_type = var.instance_type
-
-  key_name      = var.key_name
-
-  bastion_sg_id = module.security_groups.bastion_sg_id
+  bastion_security_group = module.security_groups.bastion_sg_id
 }
 
-########################################
-# RDS MYSQL MODULE
-########################################
+module "cloudwatch" {
 
-module "rds" {
+  source = "./modules/cloudwatch"
 
-  source = "./modules/rds"
+  project_name = var.project_name
 
-  project_name       = var.project_name
+  cluster_name = module.ecs_cluster.cluster_name
 
-  db_name            = var.db_name
+  service_name = module.ecs_service.service_name
 
-  db_username        = var.db_username
+  rds_id = module.rds.db_instance_identifier
 
-  db_password        = var.db_password
+  alb_arn_suffix = module.alb.alb_arn_suffix
 
-  db_instance_class  = var.db_instance_class
+  target_group_arn_suffix = module.alb.target_group_arn_suffix
+}
 
-  allocated_storage  = var.allocated_storage
+module "route53" {
+  source = "./modules/route53"
 
-  private_subnets    = module.vpc.private_subnets
+  domain_name = var.domain_name
+  subdomain   = var.app_subdomain
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id  = module.alb.alb_zone_id
+}
 
-  rds_sg_id          = module.security_groups.rds_sg_id
+module "ecs_capacity_provider" {
+  source = "./modules/ecs-capacity-provider"
+
+  cluster_name = module.ecs_cluster.cluster_name
+  asg_arn      = module.ecs_cluster.asg_arn
+}
+
+module "route53" {
+
+  source = "./modules/route53"
+
+  domain_name = var.domain_name
+  subdomain   = var.app_subdomain
+
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id  = module.alb.alb_zone_id
 }

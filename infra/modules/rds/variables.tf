@@ -2,35 +2,22 @@ variable "project_name" {
   type = string
 }
 
-variable "private_subnets" {
-  type = list(string)
-}
-
-variable "rds_sg_id" {
-  type = string
-}
-
-########################################
-# DATABASE
-########################################
-
 variable "db_name" {
   type = string
 }
 
-variable "db_username" {
+variable "instance_class" {
   type = string
 }
 
-variable "db_password" {
-  type      = string
-  sensitive = true
+variable "private_subnet_ids" {
+  type = list(string)
 }
 
-variable "db_instance_class" {
+variable "rds_security_group" {
   type = string
 }
 
-variable "allocated_storage" {
-  type = number
+variable "secret_arn" {
+  type = string
 }

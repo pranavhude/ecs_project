@@ -1,17 +1,19 @@
 variable "aws_region" {
+  type        = string
   description = "AWS Region"
-  type        = string
-  default     = "eu-west-1"
 }
 
-variable "state_bucket_name" {
+variable "project_name" {
+  type        = string
+  description = "Project Name"
+}
+
+variable "terraform_state_bucket" {
+  type        = string
   description = "Terraform State Bucket Name"
-  type        = string
-  default     = "ecs-prod-terraform-state"
 }
 
-variable "dynamodb_table_name" {
-  description = "Terraform Lock Table"
+variable "terraform_lock_table" {
   type        = string
-  default     = "terraform-locks"
+  description = "DynamoDB Lock Table Name"
 }
