@@ -27,6 +27,7 @@ ecs_max_capacity     = 4
 
 rds_instance_class = "db.t3.micro"
 
+
 db_name = "appdb"
 
 db_username = "admin"

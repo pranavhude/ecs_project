@@ -2,10 +2,6 @@ variable "project_name" {
   type = string
 }
 
-########################################
-# DATABASE
-########################################
-
 variable "db_username" {
   type = string
 }

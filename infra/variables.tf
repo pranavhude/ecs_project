@@ -65,3 +65,4 @@ variable "domain_name" {
 variable "app_subdomain" {
   type = string
 }
+

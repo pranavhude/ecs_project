@@ -31,6 +31,10 @@ module "secrets_manager" {
   source = "./modules/secrets-manager"
 
   project_name = var.project_name
+
+  db_username = var.db_username
+  db_name     = var.db_name
+  db_host     = module.rds.rds_address
 }
 
 module "rds" {
@@ -83,16 +87,19 @@ module "ecs_capacity_provider" {
   asg_arn      = module.ecs_cluster.asg_arn
 }
 
-module "ecs_service" {
+module "ecs-service" {
   source = "./modules/ecs-service"
 
-  project_name      = var.project_name
-  cluster_id        = module.ecs_cluster.cluster_id
-  target_group_arn  = module.alb.target_group_arn
-  execution_role    = module.iam.ecs_task_execution_role_arn
-  task_role         = module.iam.ecs_task_role_arn
-  secret_arn        = module.secrets_manager.secret_arn
-  ecr_repository    = module.ecr.repository_url
+  project_name          = var.project_name
+  cluster_id            = module.ecs_cluster.cluster_id
+  target_group_arn      = module.alb.target_group_arn
+  execution_role        = module.iam.ecs_task_execution_role_arn
+  task_role             = module.iam.ecs_task_role_arn
+  secret_arn            = module.secrets_manager.secret_arn
+  ecr_repository        = module.ecr.repository_url
+
+  private_subnet_ids    = module.vpc.private_subnet_ids
+  ecs_security_group_id = module.security_group.ecs_security_group_id
 }
 
 module "bastion" {
