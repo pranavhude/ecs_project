@@ -138,14 +138,3 @@ module "route53" {
   alb_dns_name = module.alb.alb_dns_name
   alb_zone_id  = module.alb.alb_zone_id
 }
-
-module "route53" {
-
-  source = "./modules/route53"
-
-  domain_name = var.domain_name
-  subdomain   = var.app_subdomain
-
-  alb_dns_name = module.alb.alb_dns_name
-  alb_zone_id  = module.alb.alb_zone_id
-}
