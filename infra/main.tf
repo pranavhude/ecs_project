@@ -139,13 +139,6 @@ module "route53" {
   alb_zone_id  = module.alb.alb_zone_id
 }
 
-module "ecs_capacity_provider" {
-  source = "./modules/ecs-capacity-provider"
-
-  cluster_name = module.ecs_cluster.cluster_name
-  asg_arn      = module.ecs_cluster.asg_arn
-}
-
 module "route53" {
 
   source = "./modules/route53"
