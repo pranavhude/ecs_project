@@ -1,100 +1,41 @@
-################################################################################
-# ALB ACCESS LOG BUCKET
-################################################################################
+resource "aws_ecr_repository" "this" {
+  name                 = "${var.project_name}-repository"
+  image_tag_mutability = "MUTABLE"
 
-resource "aws_s3_bucket" "alb_logs" {
-  bucket = "${var.project_name}-alb-logs"
-}
-
-resource "aws_s3_bucket_versioning" "alb_logs" {
-  bucket = aws_s3_bucket.alb_logs.id
-
-  versioning_configuration {
-    status = "Enabled"
+  image_scanning_configuration {
+    scan_on_push = true
   }
-}
 
-resource "aws_s3_bucket_public_access_block" "alb_logs" {
-  bucket = aws_s3_bucket.alb_logs.id
-
-  block_public_acls       = true
-  ignore_public_acls      = true
-  block_public_policy     = true
-  restrict_public_buckets = true
-}
-
-################################################################################
-# ALB
-################################################################################
-
-resource "aws_lb" "this" {
-  name               = "${var.project_name}-alb"
-
-  internal           = false
-  load_balancer_type = "application"
-
-  security_groups = [
-    var.alb_security_group
-  ]
-
-  subnets = var.public_subnet_ids
-
-  enable_deletion_protection = false
-
-  access_logs {
-    bucket  = aws_s3_bucket.alb_logs.bucket
-    enabled = true
+  encryption_configuration {
+    encryption_type = "AES256"
   }
+
+  force_delete = true
 
   tags = {
-    Name = "${var.project_name}-alb"
+    Name = "${var.project_name}-repository"
   }
 }
 
-################################################################################
-# TARGET GROUP
-################################################################################
+resource "aws_ecr_lifecycle_policy" "this" {
+  repository = aws_ecr_repository.this.name
 
-resource "aws_lb_target_group" "this" {
-  name        = "${var.project_name}-tg"
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep last 10 images"
 
-  port        = 80
-  protocol    = "HTTP"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 10
+        }
 
-  target_type = "instance"
-
-  vpc_id      = var.vpc_id
-
-  health_check {
-    enabled             = true
-    path                = "/"
-    protocol            = "HTTP"
-    matcher             = "200"
-
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    timeout             = 5
-    interval            = 30
-  }
-
-  tags = {
-    Name = "${var.project_name}-tg"
-  }
-}
-
-################################################################################
-# HTTP LISTENER
-################################################################################
-
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.this.arn
-
-  port     = 80
-  protocol = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.this.arn
-  }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
 }

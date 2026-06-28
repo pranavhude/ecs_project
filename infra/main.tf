@@ -87,7 +87,7 @@ module "ecs_capacity_provider" {
   asg_arn      = module.ecs_cluster.asg_arn
 }
 
-module "ecs-service" {
+module "ecs_service" {
   source = "./modules/ecs-service"
 
   project_name          = var.project_name
@@ -99,7 +99,7 @@ module "ecs-service" {
   ecr_repository        = module.ecr.repository_url
 
   private_subnet_ids    = module.vpc.private_subnet_ids
-  ecs_security_group_id = module.security_group.ecs_security_group_id
+  ecs_security_group_id = module.security_groups.ecs_security_group_id
 }
 
 module "bastion" {
@@ -121,7 +121,7 @@ module "cloudwatch" {
 
   cluster_name = module.ecs_cluster.cluster_name
 
-  service_name = module.ecs_service.service_name
+  service_name = module.ecs-service.service_name
 
   rds_id = module.rds.db_instance_identifier
 
