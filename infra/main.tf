@@ -99,7 +99,7 @@ module "ecs_service" {
   ecr_repository        = module.ecr.repository_url
 
   private_subnet_ids    = module.vpc.private_subnet_ids
-  ecs_security_group_id = module.security_groups.ecs_security_group_id
+  ecs_security_group_id = module.security_groups.ecs_sg_id
 }
 
 module "bastion" {
@@ -121,7 +121,7 @@ module "cloudwatch" {
 
   cluster_name = module.ecs_cluster.cluster_name
 
-  service_name = module.ecs-service.service_name
+  service_name = module.ecs_service.service_name
 
   rds_id = module.rds.db_instance_identifier
 
