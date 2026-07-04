@@ -32,6 +32,6 @@ db_name = "appdb"
 
 db_username = "admin"
 
-domain_name  = "example.com"
-app_subdomain = "app"
+# domain_name  = "example.com"
+# app_subdomain = "app"
 

@@ -1,27 +1,27 @@
-################################################################################
-# HOSTED ZONE LOOKUP
-################################################################################
+# ################################################################################
+# # HOSTED ZONE LOOKUP
+# ################################################################################
 
-data "aws_route53_zone" "this" {
-  name         = var.domain_name
-  private_zone = false
-}
+# data "aws_route53_zone" "this" {
+#   name         = var.domain_name
+#   private_zone = false
+# }
 
-################################################################################
-# ALIAS RECORD
-################################################################################
+# ################################################################################
+# # ALIAS RECORD
+# ################################################################################
 
-resource "aws_route53_record" "app" {
+# resource "aws_route53_record" "app" {
 
-  zone_id = data.aws_route53_zone.this.zone_id
+#   zone_id = data.aws_route53_zone.this.zone_id
 
-  name = "${var.subdomain}.${var.domain_name}"
+#   name = "${var.subdomain}.${var.domain_name}"
 
-  type = "A"
+#   type = "A"
 
-  alias {
-    name                   = var.alb_dns_name
-    zone_id                = var.alb_zone_id
-    evaluate_target_health = true
-  }
-}
+#   alias {
+#     name                   = var.alb_dns_name
+#     zone_id                = var.alb_zone_id
+#     evaluate_target_health = true
+#   }
+# }

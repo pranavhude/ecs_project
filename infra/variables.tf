@@ -50,10 +50,10 @@ variable "db_username" {
   type = string
 }
 
-variable "domain_name" {
-  type = string
-}
+# variable "domain_name" {
+#   type = string
+# }
 
-variable "app_subdomain" {
-  type = string
-}
+# variable "app_subdomain" {
+#   type = string
+# }
