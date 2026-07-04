@@ -3,7 +3,7 @@
 ################################################################################
 
 resource "aws_s3_bucket" "alb_logs" {
-  bucket = "${var.project_name}-alb-logs"
+  bucket = "${var.project_name}-alb-logs-322172729886"
 }
 
 resource "aws_s3_bucket_versioning" "alb_logs" {

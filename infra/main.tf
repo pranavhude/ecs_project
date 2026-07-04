@@ -34,7 +34,7 @@ module "secrets_manager" {
 
   db_username = var.db_username
   db_name     = var.db_name
-  db_host     = module.rds.rds_address
+  # db_host     = module.rds.rds_address
 }
 
 module "rds" {
