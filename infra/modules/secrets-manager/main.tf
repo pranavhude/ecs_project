@@ -42,7 +42,7 @@ resource "aws_secretsmanager_secret_version" "this" {
 
     engine   = "mysql"
 
-    host     = var.db_host
+    host     = ""
 
     port     = 3306
 
