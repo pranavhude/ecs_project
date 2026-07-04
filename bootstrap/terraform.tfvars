@@ -1,4 +1,4 @@
-aws_region = "eu-west-1"
+aws_region = "ap-south-1"
 
 project_name = "ecs-prod"
 
