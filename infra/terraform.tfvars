@@ -15,8 +15,8 @@ private_subnets = [
 ]
 
 availability_zones = [
-  "eu-west-1a",
-  "eu-west-1b"
+  "ap-south-1a",
+  "ap-south-1b"
 ]
 
 ecs_instance_type = "t3.medium"
