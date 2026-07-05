@@ -3,10 +3,9 @@
 ################################################################################
 
 resource "aws_ecs_capacity_provider" "this" {
-  name = "${var.cluster_name}-capacity-provider"
+  name = "cp-${var.cluster_name}"
 
   auto_scaling_group_provider {
-
     auto_scaling_group_arn = var.asg_arn
 
     managed_scaling {
@@ -25,7 +24,6 @@ resource "aws_ecs_capacity_provider" "this" {
 ################################################################################
 
 resource "aws_ecs_cluster_capacity_providers" "this" {
-
   cluster_name = var.cluster_name
 
   capacity_providers = [
@@ -33,7 +31,6 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
   ]
 
   default_capacity_provider_strategy {
-
     capacity_provider = aws_ecs_capacity_provider.this.name
 
     weight = 100

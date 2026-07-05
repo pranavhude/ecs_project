@@ -49,6 +49,10 @@ resource "aws_lb" "this" {
   tags = {
     Name = "${var.project_name}-alb"
   }
+
+  depends_on = [
+    aws_s3_bucket_policy.alb_logs
+  ]
 }
 
 ################################################################################
@@ -61,7 +65,7 @@ resource "aws_lb_target_group" "this" {
   port        = 80
   protocol    = "HTTP"
 
-  target_type = "instance"
+  target_type = "ip"
 
   vpc_id      = var.vpc_id
 
