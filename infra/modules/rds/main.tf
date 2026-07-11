@@ -56,7 +56,7 @@ resource "aws_db_instance" "this" {
 
   publicly_accessible = false
 
-  deletion_protection = true
+  deletion_protection = false
 
   skip_final_snapshot = false
   final_snapshot_identifier = "${var.project_name}-final-snapshot"

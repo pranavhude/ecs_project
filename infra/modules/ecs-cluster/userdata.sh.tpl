@@ -9,7 +9,12 @@ ECS_ENABLE_SPOT_INSTANCE_DRAINING=true
 ECS_LOGLEVEL=info
 EOF
 
-yum update -y
 
 systemctl enable ecs
 systemctl start ecs
+
+systemctl enable docker
+systemctl start docker
+
+systemctl enable ecs
+systemctl restart ecs
