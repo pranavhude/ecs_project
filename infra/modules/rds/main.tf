@@ -82,7 +82,7 @@ resource "aws_db_instance" "this" {
 
   apply_immediately = false
 
-  performance_insights_enabled = true
+  performance_insights_enabled = false
 
   tags = {
     Name = "${var.project_name}-mysql"
